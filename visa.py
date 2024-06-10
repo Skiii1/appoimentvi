@@ -1,0 +1,306 @@
+# -*- coding: utf8 -*-
+
+import time
+import json
+import random
+import configparser
+from datetime import datetime
+
+import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait as Wait
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+
+# Leer configuraciones del archivo config.ini
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+USERNAME = config['USVISA']['USERNAME']
+PASSWORD = config['USVISA']['PASSWORD']
+SCHEDULE_ID = config['USVISA']['SCHEDULE_ID']
+MY_SCHEDULE_DATE = config['USVISA']['MY_SCHEDULE_DATE']
+COUNTRY_CODE = config['USVISA']['COUNTRY_CODE']
+FACILITY_ID = config['USVISA']['FACILITY_ID']
+
+SENDGRID_API_KEY = config['SENDGRID']['SENDGRID_API_KEY']
+PUSH_TOKEN = config['PUSHOVER']['PUSH_TOKEN']
+PUSH_USER = config['PUSHOVER']['PUSH_USER']
+
+LOCAL_USE = config['CHROMEDRIVER'].getboolean('LOCAL_USE')
+HUB_ADDRESS = config['CHROMEDRIVER']['HUB_ADDRESS']
+
+START_MONTH = int(config['USVISA']['START_MONTH'])
+END_MONTH = int(config['USVISA']['END_MONTH'])
+
+REGEX_CONTINUE = "//a[contains(text(),'Continuar')]"
+
+
+def MY_CONDITION(month, day):
+    month = int(month)
+    return START_MONTH <= month <= END_MONTH
+
+
+STEP_TIME = 0.5  # Tiempo entre pasos (interacciones con formularios): 0.5 segundos
+RETRY_TIME = 60 * 10  # Tiempo de espera entre reintentos/verificaciones de fechas disponibles: 10 minutos
+EXCEPTION_TIME = 60 * 30  # Tiempo de espera cuando ocurre una excepción: 30 minutos
+COOLDOWN_TIME = 60 * 60  # Tiempo de espera cuando hay una prohibición temporal (lista vacía): 60 minutos
+
+DATE_URL = f"https://ais.usvisa-info.com/{COUNTRY_CODE}/niv/schedule/{SCHEDULE_ID}/appointment/days/{FACILITY_ID}.json?appointments[expedite]=false"
+TIME_URL = f"https://ais.usvisa-info.com/{COUNTRY_CODE}/niv/schedule/{SCHEDULE_ID}/appointment/times/{FACILITY_ID}.json?date=%s&appointments[expedite]=false"
+APPOINTMENT_URL = f"https://ais.usvisa-info.com/{COUNTRY_CODE}/niv/schedule/{SCHEDULE_ID}/appointment"
+EXIT = False
+
+
+# Crear una instancia de ChromeOptions si necesitas opciones personalizadas
+chrome_options = Options()
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--disable-dev-shm-usage')
+chrome_options.add_argument('--headless')
+
+# Inicializar el servicio de ChromeDriver
+service = Service(ChromeDriverManager().install())
+
+# Inicializar el controlador Chrome con el servicio y las opciones
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+
+def send_notification(msg):
+    print(f"Sending notification: {msg}")
+
+    if SENDGRID_API_KEY:
+        message = Mail(
+            from_email=USERNAME,
+            to_emails=USERNAME,
+            subject=msg,
+            html_content=msg)
+        try:
+            sg = SendGridAPIClient(SENDGRID_API_KEY)
+            response = sg.send(message)
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+        except Exception as e:
+            print(e.message)
+
+    if PUSH_TOKEN:
+        url = "https://api.pushover.net/1/messages.json"
+        data = {
+            "token": PUSH_TOKEN,
+            "user": PUSH_USER,
+            "message": msg
+        }
+        requests.post(url, data)
+
+
+def get_driver():
+    if LOCAL_USE:
+        chrome_service = Service(ChromeDriverManager().install())
+        dr = webdriver.Chrome(service=chrome_service, options=chrome_options)
+    else:
+        dr = webdriver.Remote(command_executor=HUB_ADDRESS, options=chrome_options)
+    return dr
+
+
+driver = get_driver()
+
+
+def login():
+    driver.get(f"https://ais.usvisa-info.com/{COUNTRY_CODE}/niv")
+    time.sleep(STEP_TIME)
+    a = driver.find_element(By.XPATH, '//a[@class="down-arrow bounce"]')
+    a.click()
+    time.sleep(STEP_TIME)
+
+    print("Login start...")
+    href = driver.find_element(By.XPATH, '//*[@id="header"]/nav/div[1]/div[1]/div[2]/div[1]/ul/li[3]/a')
+    href.click()
+    time.sleep(STEP_TIME)
+    Wait(driver, 60).until(EC.presence_of_element_located((By.NAME, "commit")))
+
+    print("\tclick bounce")
+    a = driver.find_element(By.XPATH, '//a[@class="down-arrow bounce"]')
+    a.click()
+    time.sleep(STEP_TIME)
+
+    do_login_action()
+
+
+def do_login_action():
+    print("\tinput email")
+    user = driver.find_element(By.ID, 'user_email')
+    user.send_keys(USERNAME)
+    time.sleep(random.randint(1, 3))
+
+    print("\tinput pwd")
+    pw = driver.find_element(By.ID, 'user_password')
+    pw.send_keys(PASSWORD)
+    time.sleep(random.randint(1, 3))
+
+    print("\tclick privacy")
+    box = driver.find_element(By.CLASS_NAME, 'icheckbox')
+    box.click()
+    time.sleep(random.randint(1, 3))
+
+    print("\tcommit")
+    btn = driver.find_element(By.NAME, 'commit')
+    btn.click()
+    time.sleep(random.randint(1, 3))
+
+    Wait(driver, 60).until(EC.presence_of_element_located((By.XPATH, REGEX_CONTINUE)))
+    print("\tlogin successful!")
+
+
+def get_date():
+    driver.get(DATE_URL)
+    if not is_logged_in():
+        login()
+        return get_date()
+    else:
+        try:
+            content = Wait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, 'pre')))
+            if content:
+                date = json.loads(content.text)
+                return date
+            else:
+                print("No content found in <pre> element.")
+                return None
+        except Exception as e:
+            print(f"Error getting date: {e}")
+            return None
+
+def get_time(date):
+    time_url = TIME_URL % date
+    driver.get(time_url)
+    content = driver.find_element(By.TAG_NAME, 'pre').text
+    data = json.loads(content)
+    time = data.get("available_times")[-1]
+    print(f"Got time successfully! {date} {time}")
+    return time
+
+
+def reschedule(date):
+    global EXIT
+    print(f"Starting Reschedule ({date})")
+
+    time = get_time(date)
+    driver.get(APPOINTMENT_URL)
+
+    data = {
+        "utf8": driver.find_element(By.NAME, 'utf8').get_attribute('value'),
+        "authenticity_token": driver.find_element(By.NAME, 'authenticity_token').get_attribute('value'),
+        "confirmed_limit_message": driver.find_element(By.NAME, 'confirmed_limit_message').get_attribute('value'),
+        "use_consulate_appointment_capacity": driver.find_element(By.NAME, 'use_consulate_appointment_capacity').getAttribute('value'),
+        "appointments[consulate_appointment][facility_id]": FACILITY_ID,
+        "appointments[consulate_appointment][date]": date,
+        "appointments[consulate_appointment][time]": time,
+    }
+
+    headers = {
+        "User-Agent": driver.execute_script("return navigator.userAgent;"),
+        "Referer": APPOINTMENT_URL,
+        "Cookie": "_yatri_session=" + driver.get_cookie("_yatri_session")["value"]
+    }
+
+    r = requests.post(APPOINTMENT_URL, headers=headers, data=data)
+    if 'Successfully Scheduled' in r.text:
+        msg = f"Rescheduled Successfully! {date} {time}"
+        send_notification(msg)
+        EXIT = True
+    else:
+        msg = f"Reschedule Failed. {date} {time}"
+        send_notification(msg)
+
+
+def is_logged_in():
+    content = driver.page_source
+    return "error" not in content
+
+
+def print_dates(dates):
+    print("Available dates:")
+    for d in dates:
+        print(f"{d.get('date')} \t business_day: {d.get('business_day')}")
+    print()
+
+
+last_seen = None
+
+
+def get_available_date(dates):
+    global last_seen
+
+    def is_earlier(date):
+        my_date = datetime.strptime(MY_SCHEDULE_DATE, "%Y-%m-%d")
+        new_date = datetime.strptime(date, "%Y-%m-%d")
+        result = my_date > new_date
+        print(f'Is {my_date} > {new_date}:\t{result}')
+        return result
+
+    print("Checking for an earlier date:")
+    for d in dates:
+        date = d.get('date')
+        if is_earlier(date) and date != last_seen:
+            year, month, day = date.split('-')
+            if MY_CONDITION(month, day):
+                last_seen = date
+                return date
+
+
+def push_notification(dates):
+    msg = "date: "
+    for d in dates:
+        msg += d.get('date') + '; '
+    send_notification(msg)
+
+
+
+if __name__ == "__main__":
+    login()
+    retry_count = 0
+    while retry_count <= 6:
+        try:
+            print("------------------")
+            print(datetime.today())
+            print(f"Retry count: {retry_count}")
+            print()
+
+            dates = get_date()
+            if dates is None:
+                print("Error: No dates retrieved.")
+                send_notification("Error: No dates retrieved.")
+                break
+
+            dates = dates[:5]
+            print_dates(dates)
+            date = get_available_date(dates)
+            print()
+            print(f"New date: {date}")
+            if date:
+                reschedule(date)
+                push_notification(dates)
+
+            if EXIT:
+                print("------------------exit")
+                break
+
+            if not dates:
+                send_notification("List is empty")
+                time.sleep(COOLDOWN_TIME)
+            else:
+                time.sleep(RETRY_TIME)
+
+        except Exception as e:
+            print(f"Exception occurred: {e}")
+            retry_count += 1
+            time.sleep(EXCEPTION_TIME)
+
+    if not EXIT:
+        send_notification("HELP! Crashed.")
