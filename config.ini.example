@@ -3,11 +3,14 @@
 USERNAME = example@example.com
 PASSWORD = xxxxxxxxxx
 SCHEDULE_ID = 99999999
-MY_SCHEDULE_DATE = 2024-01-01
-; Spanish - Colombia
-COUNTRY_CODE = es-co
-; Bogotá
-FACILITY_ID = 25
+MY_SCHEDULE_DATE = 2024-12-16
+; Spanish - Mexico
+COUNTRY_CODE = es-mx
+FACILITY_ID = 66
+START_MONTH = 5  
+END_MONTH = 12  
+START_YEAR = 2024
+END_YEAR = 2024
 
 [CHROMEDRIVER]
 ; Details for the script to control Chrome
