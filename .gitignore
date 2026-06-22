@@ -1,0 +1,10 @@
+.vercel
+.vercel-old-*
+.env
+.env.*
+!.env.example
+node_modules/
+outputs/
+*.log
+sms/*.csv
+sms/*.txt

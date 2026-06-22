@@ -1,0 +1,19 @@
+{
+  "name": "campana-telco-segura",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Frontend estatico y API serverless segura para campana telco autorizada.",
+  "scripts": {
+    "dev": "vercel dev",
+    "lint": "node --check lib/sms.js && node --check api/_shared.js && node --check api/notify.js && node --check api/export.csv.js && node --check api/sms-send.js && node --check api/telnyx-webhook.js && node --check scripts/send-sms-campaign.js",
+    "esim:prepare": "node scripts/prepare-esim-pilot.js --input sms/phones-pilot-template.txt --assume-authorized-txt --batch-size 50 --link https://registratelcel.vercel.app/telcel",
+    "wim:prepare": "node scripts/prepare-esim-pilot.js --provider wim --sender-label WIM --input sms/phones-pilot-template.txt --assume-authorized-txt --batch-size 50 --link https://registratelcel.vercel.app/telcel",
+    "wim:prepare20": "node scripts/prepare-esim-pilot.js --provider wim --sender-label WIM --input sms/phones-pilot-template.txt --assume-authorized-txt --batch-size 20 --link https://registratelcel.vercel.app/telcel",
+    "sms:dry-run": "node scripts/send-sms-campaign.js --csv sms/contacts-template.csv --link https://registratelcel.vercel.app/telcel",
+    "sms:send": "node scripts/send-sms-campaign.js --provider telnyx --send",
+    "serve:frontend": "cd frontend && python -m http.server 8080"
+  },
+  "devDependencies": {
+    "vercel": "^44.2.7"
+  }
+}

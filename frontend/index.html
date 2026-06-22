@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Campana Movil Autorizada</title>
+    <meta
+      name="description"
+      content="Campana autorizada para registrar interes de clientes sin solicitar datos bancarios ni credenciales."
+    >
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__content">
+          <p class="eyebrow">Campana autorizada</p>
+          <h1 id="hero-title">Beneficio movil para clientes activos</h1>
+          <p class="hero__copy">
+            Registra tu interes para que un asesor autorizado te contacte. Este formulario no solicita datos bancarios,
+            contrasenas, codigos SMS ni informacion de tarjetas.
+          </p>
+          <div class="trust-row" aria-label="Politicas de seguridad">
+            <span>Sin datos bancarios</span>
+            <span>Contacto con consentimiento</span>
+            <span>Validacion segura</span>
+          </div>
+        </div>
+
+        <form class="lead-form" id="leadForm" novalidate>
+          <div class="form-header">
+            <p class="eyebrow">Registro</p>
+            <h2>Solicitar contacto</h2>
+          </div>
+
+          <label>
+            Nombre completo
+            <input name="name" autocomplete="name" maxlength="80" required placeholder="Ej. Maria Lopez">
+          </label>
+
+          <label>
+            Telefono
+            <input name="phone" autocomplete="tel" inputmode="tel" maxlength="20" required placeholder="Ej. 5512345678">
+          </label>
+
+          <label>
+            Correo
+            <input name="email" autocomplete="email" inputmode="email" maxlength="120" placeholder="correo@ejemplo.com">
+          </label>
+
+          <div class="form-grid">
+            <label>
+              Ciudad
+              <input name="city" autocomplete="address-level2" maxlength="80" placeholder="Ej. CDMX">
+            </label>
+
+            <label>
+              Horario
+              <select name="contactTime">
+                <option value="">Seleccionar</option>
+                <option>Manana</option>
+                <option>Tarde</option>
+                <option>Noche</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>Paquete de interes</legend>
+            <div class="plans">
+              <label class="plan-option">
+                <input type="radio" name="plan" value="Renovacion de plan" checked>
+                <span>Renovacion</span>
+              </label>
+              <label class="plan-option">
+                <input type="radio" name="plan" value="Paquete de datos">
+                <span>Datos</span>
+              </label>
+              <label class="plan-option">
+                <input type="radio" name="plan" value="Equipo con plan">
+                <span>Equipo</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <label>
+            Folio o referencia comercial enmascarada
+            <input
+              name="maskedReference"
+              maxlength="40"
+              placeholder="Ej. FOLIO-2026-AB12 o ****1234"
+              aria-describedby="maskedHelp"
+            >
+          </label>
+          <p class="field-help" id="maskedHelp">
+            No escribas tarjeta, CLABE, NIP, CVV, codigo SMS, contrasena ni informacion bancaria.
+          </p>
+
+          <label class="consent">
+            <input type="checkbox" name="consent" required>
+            <span>Acepto ser contactado para recibir informacion de esta campana.</span>
+          </label>
+
+          <button class="submit-button" type="submit">Enviar solicitud</button>
+          <p class="status" id="formStatus" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

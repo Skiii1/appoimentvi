@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prueba WIM eSIM</title>
+    <meta
+      name="description"
+      content="Pagina local de navegador para abrir un SMS de prueba desde una linea WIM/eSIM."
+    >
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f7fa;
+        --panel: #ffffff;
+        --ink: #16202d;
+        --muted: #5b6574;
+        --line: #d7dee8;
+        --accent: #0c7b6f;
+        --accent-strong: #075c54;
+        --warn-bg: #fff7cf;
+        --warn-line: #c99417;
+        --danger: #b42318;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+      }
+
+      main {
+        width: min(680px, 100%);
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 24px;
+        background: var(--panel);
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.7rem;
+        letter-spacing: 0;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      form {
+        display: grid;
+        gap: 16px;
+        margin-top: 22px;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        font-weight: 700;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 12px;
+        color: var(--ink);
+        background: #fff;
+        font: inherit;
+        font-weight: 400;
+      }
+
+      textarea {
+        min-height: 112px;
+        resize: vertical;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: 3px solid rgba(12, 123, 111, 0.16);
+        border-color: var(--accent);
+      }
+
+      .note {
+        margin-top: 16px;
+        border: 1px solid var(--warn-line);
+        border-radius: 6px;
+        padding: 12px;
+        color: #6b4a00;
+        background: var(--warn-bg);
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      button,
+      a.button {
+        min-height: 48px;
+        border: 0;
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+        padding: 0 14px;
+        color: #fff;
+        background: var(--accent);
+        font: inherit;
+        font-weight: 800;
+        text-align: center;
+        text-decoration: none;
+      }
+
+      button:hover,
+      a.button:hover {
+        background: var(--accent-strong);
+      }
+
+      a.button[aria-disabled="true"] {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+
+      .status {
+        min-height: 22px;
+        color: var(--danger);
+      }
+
+      .preview {
+        overflow-wrap: anywhere;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 12px;
+        background: #f8fafc;
+      }
+
+      @media (max-width: 560px) {
+        main {
+          padding: 0;
+        }
+
+        section {
+          min-height: 100vh;
+          border-width: 0;
+          border-radius: 0;
+          padding: 22px;
+        }
+
+        .actions {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>Prueba WIM eSIM</h1>
+        <p>
+          Escribe el numero destino en este iPhone. La pagina no guarda datos ni contacta al backend; solo abre
+          Mensajes con el SMS prellenado.
+        </p>
+
+        <p class="note">
+          Antes de enviar, confirma en Mensajes que la linea seleccionada sea WIM/eSIM y no tu numero personal.
+        </p>
+
+        <form id="smsForm">
+          <label>
+            Numero destino
+            <input
+              id="phone"
+              autocomplete="tel"
+              inputmode="tel"
+              maxlength="20"
+              placeholder="Ej. 5512345678"
+              required
+            >
+          </label>
+
+          <label>
+            Mensaje
+            <textarea id="message" maxlength="300" required>Prueba interna IT desde WIM. Favor de confirmar recepcion.</textarea>
+          </label>
+
+          <div class="actions">
+            <a class="button" id="iosLink" href="#" aria-disabled="true">Abrir iPhone</a>
+            <a class="button" id="androidLink" href="#" aria-disabled="true">Abrir Android</a>
+          </div>
+
+          <p class="status" id="status" role="status" aria-live="polite"></p>
+          <p class="preview" id="preview">SMS listo cuando captures un numero valido.</p>
+        </form>
+      </section>
+    </main>
+
+    <script>
+      const phoneInput = document.querySelector("#phone");
+      const messageInput = document.querySelector("#message");
+      const iosLink = document.querySelector("#iosLink");
+      const androidLink = document.querySelector("#androidLink");
+      const status = document.querySelector("#status");
+      const preview = document.querySelector("#preview");
+
+      function normalizePhone(raw) {
+        const value = String(raw || "").trim();
+
+        if (value.startsWith("+")) {
+          const digits = value.replace(/\D/g, "");
+          return digits.length >= 10 && digits.length <= 15 ? `+${digits}` : "";
+        }
+
+        const digits = value.replace(/\D/g, "");
+
+        if (digits.startsWith("52") && digits.length >= 12 && digits.length <= 15) {
+          return `+${digits}`;
+        }
+
+        if (digits.length === 10) {
+          return `+52${digits}`;
+        }
+
+        return "";
+      }
+
+      function setLinkState(enabled) {
+        iosLink.setAttribute("aria-disabled", enabled ? "false" : "true");
+        androidLink.setAttribute("aria-disabled", enabled ? "false" : "true");
+      }
+
+      function updateLinks() {
+        const phone = normalizePhone(phoneInput.value);
+        const message = messageInput.value.replace(/\s+/g, " ").trim();
+
+        if (!phone || !message) {
+          iosLink.href = "#";
+          androidLink.href = "#";
+          setLinkState(false);
+          status.textContent = phoneInput.value ? "Numero no valido. Usa 10 digitos o formato +52." : "";
+          preview.textContent = "SMS listo cuando captures un numero valido.";
+          return;
+        }
+
+        const body = encodeURIComponent(message);
+        iosLink.href = `sms:${phone}&body=${body}`;
+        androidLink.href = `sms:${phone}?body=${body}`;
+        setLinkState(true);
+        status.textContent = "";
+        preview.textContent = `Destino: ${phone} | ${message}`;
+      }
+
+      phoneInput.addEventListener("input", updateLinks);
+      messageInput.addEventListener("input", updateLinks);
+      updateLinks();
+    </script>
+  </body>
+</html>

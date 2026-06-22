@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Telcel icon</title>
+  <defs>
+    <linearGradient id="bg" x1="68" x2="444" y1="48" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0864e8"/>
+      <stop offset=".55" stop-color="#003fba"/>
+      <stop offset="1" stop-color="#002c82"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <path fill="#fff" opacity=".16" d="M70 131h372v72H70z"/>
+  <text x="250" y="290" fill="#fff" font-family="Arial Black, Arial, sans-serif" font-size="98" font-style="italic" font-weight="900" text-anchor="middle" transform="skewX(-10 250 290)">telcel</text>
+  <path fill="#fff" opacity=".9" d="M156 337h204v18H156z"/>
+</svg>

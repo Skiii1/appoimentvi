@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lote WIM eSIM</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f7fa;
+        --panel: #ffffff;
+        --ink: #16202d;
+        --muted: #5b6574;
+        --line: #d7dee8;
+        --accent: #0c7b6f;
+        --accent-strong: #075c54;
+        --blue: #0969da;
+        --danger: #b42318;
+        --warn-bg: #fff7cf;
+        --warn-line: #c99417;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+      }
+
+      main {
+        width: min(980px, 100%);
+        margin: 0 auto;
+        padding: 22px;
+      }
+
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        background: var(--panel);
+      }
+
+      h1 { margin: 0 0 8px; font-size: 1.6rem; letter-spacing: 0; }
+      p { margin: 0; color: var(--muted); line-height: 1.45; }
+
+      form {
+        display: grid;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        font-weight: 700;
+      }
+
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 12px;
+        color: var(--ink);
+        background: #fff;
+        font: inherit;
+        font-weight: 400;
+        resize: vertical;
+      }
+
+      #phones { min-height: 180px; }
+      #message { min-height: 96px; }
+
+      textarea:focus {
+        outline: 3px solid rgba(12, 123, 111, 0.16);
+        border-color: var(--accent);
+      }
+
+      .note {
+        margin-top: 14px;
+        border: 1px solid var(--warn-line);
+        border-radius: 6px;
+        padding: 12px;
+        color: #6b4a00;
+        background: var(--warn-bg);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      button,
+      a.button {
+        min-height: 44px;
+        border: 0;
+        border-radius: 6px;
+        display: inline-grid;
+        place-items: center;
+        padding: 0 14px;
+        color: #fff;
+        background: var(--accent);
+        font: inherit;
+        font-weight: 800;
+        text-align: center;
+        text-decoration: none;
+      }
+
+      button.secondary { background: var(--blue); }
+      button.danger { background: var(--danger); }
+      button:hover, a.button:hover { filter: brightness(0.92); }
+
+      .status {
+        min-height: 22px;
+        color: var(--muted);
+      }
+
+      .status[data-tone="error"] { color: var(--danger); }
+
+      .results {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .contact {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+        background: #fff;
+      }
+
+      .contact[data-state="sent"] {
+        border-color: rgba(12, 123, 111, 0.45);
+        background: #f1fbf8;
+      }
+
+      .contact[data-state="error"] {
+        border-color: rgba(180, 35, 24, 0.35);
+        background: #fff7f7;
+      }
+
+      .contact__head {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--muted);
+      }
+
+      .contact__phone {
+        color: var(--ink);
+        font-weight: 800;
+      }
+
+      .contact__actions {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .contact__actions a,
+      .contact__actions button {
+        min-height: 40px;
+        font-size: 0.9rem;
+      }
+
+      .empty {
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        padding: 18px;
+        color: var(--muted);
+        background: #fff;
+      }
+
+      @media (max-width: 700px) {
+        main { padding: 0; }
+        section {
+          min-height: 100vh;
+          border-width: 0;
+          border-radius: 0;
+        }
+        .contact__head { display: grid; }
+        .contact__actions { grid-template-columns: 1fr 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>Lote WIM eSIM</h1>
+        <p>Pega hasta 20 numeros del area IT. Esta pagina no guarda datos en servidor; todo se procesa en Safari.</p>
+        <p class="note">Antes de enviar cada SMS, confirma en Mensajes que la linea seleccionada sea WIM/eSIM.</p>
+
+        <form id="batchForm">
+          <label>
+            Numeros destino
+            <textarea id="phones" placeholder="5512345678&#10;+525512345679&#10;5551234567"></textarea>
+          </label>
+
+          <label>
+            Mensaje
+            <textarea id="message" maxlength="300">Prueba interna IT desde WIM. Favor de confirmar recepcion.</textarea>
+          </label>
+
+          <div class="toolbar">
+            <button type="submit">Preparar lote</button>
+            <button class="secondary" type="button" id="copyPending">Copiar pendientes</button>
+            <button class="danger" type="button" id="resetProgress">Limpiar marcas</button>
+          </div>
+          <p class="status" id="status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="results" id="results">
+          <div class="empty">Pega numeros y toca Preparar lote.</div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const MAX_BATCH = 20;
+      const STORAGE_KEY = "wim-batch-status-v1";
+      const form = document.querySelector("#batchForm");
+      const phonesInput = document.querySelector("#phones");
+      const messageInput = document.querySelector("#message");
+      const statusEl = document.querySelector("#status");
+      const resultsEl = document.querySelector("#results");
+      const copyPendingButton = document.querySelector("#copyPending");
+      const resetButton = document.querySelector("#resetProgress");
+
+      let currentContacts = [];
+
+      function normalizePhone(raw) {
+        const value = String(raw || "").trim();
+
+        if (value.startsWith("+")) {
+          const digits = value.replace(/\D/g, "");
+          return digits.length >= 10 && digits.length <= 15 ? `+${digits}` : "";
+        }
+
+        const digits = value.replace(/\D/g, "");
+
+        if (digits.startsWith("52") && digits.length >= 12 && digits.length <= 15) {
+          return `+${digits}`;
+        }
+
+        if (digits.length === 10) {
+          return `+52${digits}`;
+        }
+
+        return "";
+      }
+
+      function loadState() {
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        } catch {
+          return {};
+        }
+      }
+
+      function saveState(state) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function setStatus(message, tone = "") {
+        statusEl.textContent = message;
+        if (tone) {
+          statusEl.dataset.tone = tone;
+        } else {
+          delete statusEl.dataset.tone;
+        }
+      }
+
+      function parsePhones(text) {
+        const seen = new Set();
+        const contacts = [];
+        const rejected = [];
+
+        String(text || "")
+          .split(/\r?\n|,|;/)
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .forEach((item) => {
+            const phone = normalizePhone(item);
+
+            if (!phone) {
+              rejected.push(item);
+            } else if (!seen.has(phone)) {
+              seen.add(phone);
+              contacts.push(phone);
+            }
+          });
+
+        return { contacts, rejected };
+      }
+
+      function smsHref(phone, message, platform) {
+        const body = encodeURIComponent(message);
+        const separator = platform === "ios" ? "&" : "?";
+        return `sms:${phone}${separator}body=${body}`;
+      }
+
+      function render() {
+        const message = messageInput.value.replace(/\s+/g, " ").trim();
+        const state = loadState();
+
+        if (currentContacts.length === 0) {
+          resultsEl.innerHTML = '<div class="empty">Pega numeros y toca Preparar lote.</div>';
+          return;
+        }
+
+        resultsEl.innerHTML = "";
+
+        currentContacts.forEach((phone, index) => {
+          const row = document.createElement("article");
+          const currentState = state[phone] || "pending";
+          row.className = "contact";
+          row.dataset.phone = phone;
+          row.dataset.state = currentState;
+          row.innerHTML = `
+            <div class="contact__head">
+              <span>#${index + 1}</span>
+              <span class="contact__phone">${phone}</span>
+              <span>${currentState === "sent" ? "Enviado" : currentState === "error" ? "Error" : "Pendiente"}</span>
+            </div>
+            <div class="contact__actions">
+              <a class="button" href="${smsHref(phone, message, "ios")}">iPhone</a>
+              <a class="button" href="${smsHref(phone, message, "android")}">Android</a>
+              <button type="button" class="mark-sent">Enviado</button>
+              <button type="button" class="danger mark-error">Error</button>
+            </div>
+          `;
+          resultsEl.appendChild(row);
+        });
+
+        const sent = currentContacts.filter((phone) => state[phone] === "sent").length;
+        setStatus(`${currentContacts.length} contactos listos. Enviados marcados: ${sent}.`);
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const message = messageInput.value.replace(/\s+/g, " ").trim();
+        const parsed = parsePhones(phonesInput.value);
+
+        if (!message) {
+          setStatus("Escribe un mensaje.", "error");
+          return;
+        }
+
+        if (parsed.contacts.length === 0) {
+          currentContacts = [];
+          render();
+          setStatus("No hay numeros validos.", "error");
+          return;
+        }
+
+        if (parsed.contacts.length > MAX_BATCH) {
+          currentContacts = parsed.contacts.slice(0, MAX_BATCH);
+          setStatus(`Se tomaron los primeros ${MAX_BATCH}. Divide el resto en otro lote.`, "error");
+        } else {
+          currentContacts = parsed.contacts;
+          setStatus(`${currentContacts.length} contactos listos.`);
+        }
+
+        if (parsed.rejected.length > 0) {
+          setStatus(`${currentContacts.length} listos. Rechazados: ${parsed.rejected.length}.`, "error");
+        }
+
+        render();
+      });
+
+      resultsEl.addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button) return;
+
+        const row = event.target.closest(".contact");
+        const phone = row?.dataset.phone;
+        if (!phone) return;
+
+        const state = loadState();
+
+        if (button.classList.contains("mark-sent")) {
+          state[phone] = "sent";
+        } else if (button.classList.contains("mark-error")) {
+          state[phone] = "error";
+        }
+
+        saveState(state);
+        render();
+      });
+
+      copyPendingButton.addEventListener("click", async () => {
+        const state = loadState();
+        const pending = currentContacts.filter((phone) => state[phone] !== "sent");
+
+        if (pending.length === 0) {
+          setStatus("No hay pendientes.");
+          return;
+        }
+
+        await navigator.clipboard.writeText(pending.join("\n"));
+        setStatus(`${pending.length} pendientes copiados.`);
+      });
+
+      resetButton.addEventListener("click", () => {
+        const state = loadState();
+        currentContacts.forEach((phone) => delete state[phone]);
+        saveState(state);
+        render();
+      });
+    </script>
+  </body>
+</html>

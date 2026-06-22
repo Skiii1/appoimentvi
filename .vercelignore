@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.git
+.vercel
+node_modules
+outputs
+*.log
+sms/*.csv
+sms/*.txt

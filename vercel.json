@@ -1,0 +1,40 @@
+{
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/frontend/wim-test.html"
+    },
+    {
+      "source": "/wim-test",
+      "destination": "/frontend/wim-test.html"
+    },
+    {
+      "source": "/wim-batch",
+      "destination": "/frontend/wim-batch.html"
+    },
+    {
+      "source": "/telcel",
+      "destination": "/frontend/telcel.html"
+    },
+    {
+      "source": "/campana",
+      "destination": "/frontend/telcel.html"
+    }
+  ]
+}

