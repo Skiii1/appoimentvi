@@ -81,13 +81,11 @@ async function readBody(req) {
 
   if (req.body && typeof req.body === "object") {
     const size = Buffer.byteLength(JSON.stringify(req.body), "utf8");
-
     if (size > maxBodyBytes) {
       const error = new Error("Payload demasiado grande.");
       error.statusCode = 413;
       throw error;
     }
-
     return req.body;
   }
 
@@ -97,7 +95,6 @@ async function readBody(req) {
       error.statusCode = 413;
       throw error;
     }
-
     return JSON.parse(req.body || "{}");
   }
 
@@ -106,13 +103,11 @@ async function readBody(req) {
 
   for await (const chunk of req) {
     totalBytes += chunk.length;
-
     if (totalBytes > maxBodyBytes) {
       const error = new Error("Payload demasiado grande.");
       error.statusCode = 413;
       throw error;
     }
-
     chunks.push(chunk);
   }
 
@@ -134,7 +129,6 @@ function isOriginAllowed(req, options = {}) {
 
 function enforceOrigin(req, res, options) {
   if (isOriginAllowed(req, options)) return true;
-
   sendJson(res, 403, { ok: false, error: "Origen no permitido." });
   return false;
 }
@@ -199,12 +193,10 @@ function luhnCheck(value) {
 
   for (let i = digits.length - 1; i >= 0; i -= 1) {
     let digit = Number(digits[i]);
-
     if (shouldDouble) {
       digit *= 2;
       if (digit > 9) digit -= 9;
     }
-
     sum += digit;
     shouldDouble = !shouldDouble;
   }
@@ -215,6 +207,7 @@ function luhnCheck(value) {
 function looksSensitiveValue(value) {
   const text = String(value || "");
   const digits = digitsOnly(text);
+
   const curpPattern = /\b[A-Z][AEIOUX][A-Z]{2}\d{6}[HM][A-Z]{5}[A-Z0-9]\d\b/i;
   const rfcPattern = /\b[A-Z&]{3,4}\d{6}[A-Z0-9]{3}\b/i;
 
@@ -249,10 +242,16 @@ function sanitizePayload(payload) {
     paymentInputStatus: normalizeText(payload.paymentInputStatus, FIELD_LIMITS.paymentInputStatus)
   };
 
-  if (hasSensitiveKey(payload) || Object.values(sanitized).filter((value) => typeof value === "string").some(looksSensitiveValue)) {
+  if (
+    hasSensitiveKey(payload) ||
+    Object.values(sanitized)
+      .filter((value) => typeof value === "string")
+      .some(looksSensitiveValue)
+  ) {
     return {
       ok: false,
-      reason: "No se aceptan datos bancarios, credenciales, OTP, NIP, CVV, CLABE, tarjetas completas, CURP ni RFC."
+      reason:
+        "No se aceptan datos bancarios, credenciales, OTP, NIP, CVV, CLABE, tarjetas completas, CURP ni RFC."
     };
   }
 
@@ -285,9 +284,7 @@ function escapeTelegram(value) {
 
 function extractSpeiFolio(maskedReference) {
   const reference = normalizeText(maskedReference, FIELD_LIMITS.maskedReference);
-
   if (!/\bspei\b/i.test(reference)) return "";
-
   const match = reference.match(/\|\s*Ref\s+([^|]+)/i);
   return normalizeText(match && match[1] ? match[1] : "", 80);
 }
@@ -295,6 +292,7 @@ function extractSpeiFolio(maskedReference) {
 function buildTelegramMessage(payload) {
   const fullName = [payload.name, payload.lastName].filter(Boolean).join(" ");
   const speiFolio = extractSpeiFolio(payload.maskedReference);
+
   const rows = [
     ["Nombre", fullName || payload.name],
     ["Telefono", payload.phone],
@@ -326,16 +324,19 @@ function hasTelegramConfig() {
 async function sendTelegram(message) {
   if (!hasTelegramConfig()) return { sent: false, skipped: true };
 
-  const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: process.env.TELEGRAM_CHAT_ID,
-      text: message,
-      parse_mode: "HTML",
-      disable_web_page_preview: true
-    })
-  });
+  const response = await fetch(
+    `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: process.env.TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: "HTML",
+        disable_web_page_preview: true
+      })
+    }
+  );
 
   if (!response.ok) {
     const detail = await response.text();
@@ -354,16 +355,15 @@ function getSupabaseConfig() {
 
 function requireSupabaseConfig() {
   const config = getSupabaseConfig();
-
   if (!config.url || !config.key) {
     throw new Error("Missing Supabase configuration");
   }
-
   return config;
 }
 
 async function supabaseRequest(path, options = {}) {
   const config = requireSupabaseConfig();
+
   const response = await fetch(`${config.url}${path}`, {
     ...options,
     headers: {
@@ -429,7 +429,6 @@ function requireExportAuth(req) {
 function safeTokenEqual(value, expected) {
   const left = Buffer.from(String(value || ""), "utf8");
   const right = Buffer.from(String(expected || ""), "utf8");
-
   if (left.length !== right.length) return false;
   return crypto.timingSafeEqual(left, right);
 }
@@ -437,6 +436,7 @@ function safeTokenEqual(value, expected) {
 async function listLeads(req) {
   const params = getQuery(req);
   const limit = Math.min(Math.max(Number(params.get("limit") || 1000), 1), 5000);
+
   const query = new URLSearchParams({
     select: "created_at,name,phone,email,city,plan,contact_time,masked_reference,consent",
     order: "created_at.desc",
